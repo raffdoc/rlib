@@ -1,0 +1,4 @@
+1) Download this repository to local machine
+   - git clone git@github.com:stakahama/rprofile.git
+   - to update, use ./pull
+2) To commit edits, use ./push "message".

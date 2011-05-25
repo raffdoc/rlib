@@ -1,0 +1,8 @@
+#!/bin/bash
+
+## example usage:
+## ./push "commit message"
+
+rsync -avP ~/.Rprofile .
+git commit -a -m $0
+git push git@github.com:stakahama/rprofile.git master

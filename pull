@@ -1,0 +1,7 @@
+#!/bin/bash
+
+## example usage:
+## ./pull
+
+git pull
+rsync -avuP .Rprofile ~/
