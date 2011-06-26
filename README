@@ -4,9 +4,6 @@
 2) To commit edits, use ./push "message".
 
 There is a function in my .Rprofile called populate.env(). I use this function to load the scripts (which I keep in "~/lib/R") in a separate namespace and attached to R's search() path. Example usage:
-
     populate.env("mylib","~/lib/R")
-
-or for single files,
-
+or, for single files,
     populate.env("pies","~/lib/R/more-axes.r")
