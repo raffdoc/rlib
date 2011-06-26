@@ -2,6 +2,6 @@ more-axes.r
 color-dendogram.r
 movingfn.r
 piesanywhere.r
-rasterimage.r
+image-functions.r
 collapse.r
 r-igor.r
