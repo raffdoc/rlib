@@ -74,7 +74,7 @@ make.filled.contour.nolegend <- function() {
                                     tail(fnbody,with(here,-(last-1)))))
   filled.contour
 }
-filled.contour.nolegend <- make.filled.contour.nolegend(graphics::filled.contour)
+filled.contour.nolegend <- make.filled.contour.nolegend()
 
 
 make.newimageplot <- function() {
