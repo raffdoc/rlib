@@ -10,6 +10,15 @@ assign.nodenumbers <- function(patterns,env) function(x) {
   assign("counter",counter+1,,env)
 }
 
+logseq <- function(base=exp(1))
+  as.function(c(formals(base::seq.default),quote({
+    invocation <- lapply(as.list(match.call()),eval,envir=parent.frame())
+    ft <- Filter(Negate(is.null), as.list(invocation)[c("from", "to")])
+    invocation[names(ft)] <- lapply(ft, function(x,b) log(x , b),base)
+    base^do.call(seq, invocation[-1])
+  })))
+log10seq <- logseq(10)
+
 make.image.raster <- function() {
   require(graphics)
   image.default <- graphics::image.default
@@ -100,23 +109,29 @@ make.newimageplot <- function() {
 newimageplot <- make.newimageplot()
 
 legend.colorbar <- function(...,axes=FALSE,ann=FALSE,
-                           horizontal=FALSE,axis.side=if(horizontal) 1 else 4,
-                           imagefn=graphics::image.default) {
+                            horizontal=FALSE,
+                            axis.log="",
+                            axis.side=if(horizontal) 1 else 4,
+                            imagefn=graphics::image.default,
+                            axis.args=NULL,
+                            major.axis.args=axis.args,
+                            minor.axis.args=NULL) {
   ## to be called in conjunction with layout(), usually
   ## imagefn can also be image.raster() if also defined
   args <- list(...)
   nc <- length(if(is.null(args$col)) eval(formals(imagefn)$col) else args$col)
   if( !is.null(args[["zlim"]]) ) {
     ## zlim exists
-    y <- seq(min(zlim),max(zlim),,nc)
+    zrange <- zlim
   } else if( !is.null(args[["z"]]) ) {
     ## z exists
-    y <- seq(min(z,na.rm=TRUE),max(z,na.rm=TRUE),,nc)
+    zrange <- range(args[["z"]],na.rm=TRUE)
   } else {
     ## fail
     stop("z or zlim must be specified")
   }
   x <- 1
+  y <- seq(zrange[1],zrange[2],,nc)  
   z <- 1:nc
   if( horizontal ) {
     args$x <- y
@@ -126,9 +141,24 @@ legend.colorbar <- function(...,axes=FALSE,ann=FALSE,
     args$y <- y
   }
   args$z <- structure(z,dim=c(length(args$x),length(args$y)))
-  do.call(imagefn,c(args,list(axes=axes,ann=ann)))
+  do.call(imagefn,c(args,list(log="",axes=axes,ann=ann)))
   if( !is.na(axis.side) ) {
-    axis(axis.side)
+    if( axis.log=="z" ) {
+      zaxisrange <- range((par("usr")[if(horizontal) 1:2 else 3:4] %/% 1) + c(-1,1))
+      zticks <- zaxisrange[1]:zaxisrange[2]
+      if(is.null(major.axis.args$tck))
+        major.axis.args$tck <- 
+          (if(is.na(par("tck"))) par("tcl") else par("tck"))
+      if(is.null(minor.axis.args$tck))
+        minor.axis.args$tck <- 1/5*major.axis.args$tck
+      do.call(axis,c(list(side=axis.side,at=zticks,labels=
+                          parse(text=sprintf("10^%d",zticks)),
+                          xpd=FALSE),major.axis.args))
+      do.call(axis,c(list(side=axis.side,at=log10(outer(1:9,10^zticks)),
+                          labels=FALSE,xpd=FALSE),minor.axis.args))
+    } else {
+      do.call(axis,c(list(side=axis.side),axis.args))
+    }
     box()
   }
   invisible()

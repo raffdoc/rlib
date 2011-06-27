@@ -4,7 +4,7 @@
 ## ./push "commit message"
 
 rsync -avP ~/.Rprofile .
-rsync -arvuP --files-from=rfiles ~/lib/R/ lib/
+rsync -avP --files-from=rfiles ~/lib/R/ lib/
 # git add .
 git commit -a -m $1
 git push -u origin master
