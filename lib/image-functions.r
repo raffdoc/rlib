@@ -103,6 +103,7 @@ legend.colorbar <- function(...,axes=FALSE,ann=FALSE,
                            horizontal=FALSE,axis.side=if(horizontal) 1 else 4,
                            imagefn=graphics::image.default) {
   ## to be called in conjunction with layout(), usually
+  ## imagefn can also be image.raster() if also defined
   args <- list(...)
   nc <- length(if(is.null(args$col)) eval(formals(imagefn)$col) else args$col)
   if( !is.null(args[["zlim"]]) ) {
