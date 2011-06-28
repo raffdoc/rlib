@@ -5,6 +5,13 @@
 
 rsync -avP ~/.Rprofile .
 rsync -avP --files-from=rfiles ~/lib/R/ lib/
-# git add .
-git commit -a -m $1
+git add .
+if [ -z "$1" ]
+then
+    echo message: $0
+    git commit -a -m "$0"
+else
+    echo message: $1
+    git commit -a -m "$1"
+fi
 git push -u origin master
