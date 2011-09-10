@@ -1,6 +1,6 @@
 if (regexpr("mac",.Platform$pkgType)>0) options(device="quartz")
 ## options(device="X11")
-options(help_type="html",
+options(##help_type="html",
         repos="http://cran.stat.ucla.edu",
         stringsAsFactors=FALSE,
         deparse.max.lines=10)
@@ -19,6 +19,10 @@ if( all(regexpr("^Rprofile$",search()) < 0) )
 
 evalq({
 
+  recsub <- function(x,replace) 
+    Reduce(function(.x,i) sub(names(replace)[i],replace[i],.x),
+           seq_along(replace),x)
+  
   catpr <- function(x,fmt='"%s"')
     cat(sprintf("c(%s)",paste(sprintf(fmt,x),collapse=",")),"\n")
   
@@ -239,8 +243,8 @@ evalq({
     x
   }
 
-  write.delim <- function(...)
-    write.table(...,sep="\t",row.names=FALSE,quote=FALSE)
+  write.delim <- function(...,sep="\t",row.names=FALSE,quote=FALSE)
+    write.table(...,sep=sep,row.names=row.names,quote=quote)
 
   selfname <- function(x,f=identity) `names<-`(force(x),f(x))
 
