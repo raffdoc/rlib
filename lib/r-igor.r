@@ -81,3 +81,14 @@ attrnoclass <- function(x) {
   a <- attributes(x)
   a[!grepl("class",names(a))]
 }
+
+IGORdatetime <- function(x) {
+  ## x is in seconds since 01/01/1904
+  require(chron)
+  as.chron(ISOdatetime(1904,1,1,0,0,0,"GMT")+x)
+}
+
+chron2IGORdatesecs <- function(x) {
+  require(chron)
+  unclass(x-chron("01/01/1904","00:00:00"))*2400*36
+}

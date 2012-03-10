@@ -3,7 +3,8 @@ if (regexpr("mac",.Platform$pkgType)>0) options(device="quartz")
 options(##help_type="html",
         repos="http://cran.stat.ucla.edu",
         stringsAsFactors=FALSE,
-        deparse.max.lines=10)
+        deparse.max.lines=10,
+        warn=1)
 
 Sys.setenv(PKG_CONFIG_PATH="/usr/local/ggobi/lib/pkgconfig:/Library/Framewo rks/GTK+.framework/Resources/lib/pkgconfig")
 
@@ -15,7 +16,7 @@ Sys.setenv(NOAWT=1)
 ##assign("help",utils::help,globalenv())
 
 if( all(regexpr("^Rprofile$",search()) < 0) )
-  attach(NULL,pos=2,name="Rprofile")
+  attach(NULL,name="Rprofile") # pos=2 by default
 
 evalq({
 
@@ -195,36 +196,30 @@ evalq({
     do.call(function(...) Map(list,...),arglist)
   }
   enumerate <- function(x) zip(i=seq(along=x),x)
-  
-  name.to.env <- function(env.name)
-    pos.to.env(grep(env.name,search()))
 
-  attach.env <- function(env.name, e=NULL)
-    if( !env.exists(env.name) ) attach(e,name=env.name,pos=2)
 
   env.exists <- function(env.name) any(grepl(env.name,search()))
   
-  ##{{{
-
-  ## populate.env <- function(env.name,path,...) {
-  ##   attach.env(env.name)
-  ##   if( file.info(path[1])$isdir )
-  ##     lapply(list.files(path,full.names=TRUE,...),
-  ##            sys.source,name.to.env(env.name)) else
-  ##   lapply(path,sys.source,name.to.env(env.name))
-  ##   invisible()
-  ## }
-
-  ##}}}
+  attach.env <- function(env.name, env=NULL)
+    if( !env.exists(env.name) ) attach(env,name=env.name) # pos=2 by default
+  
   populate.env <- function(env.name,path,...) {
-    e <- (if( env.exists(env.name) )
-          name.to.env(env.name) else
-          new.env(hash=TRUE))
-    if( file.info(path[1])$isdir )
-      lapply(list.files(path,full.names=TRUE,...),
-             sys.source,e) else
-    lapply(path,sys.source,e)
-    attach.env(env.name,e)
+    ## http://stackoverflow.com/questions/2634512/r-disentangling-scopes
+    ## populates environment with functions in file or directory
+    ## creates and attaches named environment to search() path 
+    ##        if it doesn't already exist
+    ## --- define environment ---
+    env <- (if( env.exists(env.name) )
+            as.environment(env.name) else
+            new.env(hash=TRUE))
+    ## --- source ---    
+    if( file.info(path[1])$isdir ) {
+      lapply(list.files(path,"\\.r$",full.names=TRUE,ignore.case=TRUE,...),
+             sys.source,env)
+    } else {
+      lapply(path,sys.source,env)
+    }
+    attach.env(env.name,env)
     invisible()
   }
 
@@ -318,7 +313,7 @@ evalq({
                                                   log10(tick.at.major)))
       ans[[side]]$labels$labels[!major] <- "" 
       ans[[side]]$labels$check.overlap <- FALSE 
-      ans 
+     ans 
     } 
   
   read.orgtable <- function(txt) {
@@ -399,6 +394,6 @@ evalq({
                    assign(x,`environment<-`(get(x,e),g),e),
                    environment(),globalenv()))
 
-},pos.to.env(grep("Rprofile",search())))
+},as.environment("Rprofile"))
 
 
