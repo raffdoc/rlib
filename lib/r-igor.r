@@ -88,7 +88,9 @@ IGORdatetime <- function(x) {
   as.chron(ISOdatetime(1904,1,1,0,0,0,"GMT")+x)
 }
 
-chron2IGORdatesecs <- function(x) {
-  require(chron)
-  unclass(x-chron("01/01/1904","00:00:00"))*2400*36
-}
+chron2IGORdatesecs <-
+  with(list(epoch=unclass(ISOdatetime(1904, 1, 1, 0, 0, 0, "GMT"))),
+       function(x) {
+         require(chron)
+         unclass(x)*24*3600 - epoch
+       })
